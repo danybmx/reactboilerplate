@@ -1,4 +1,4 @@
 import ReactDOM from 'react-dom';
-import Routes from './routes.client.js';
+import Root from './containers/Root';
 
-ReactDOM.render(Routes, document.getElementById('root'));
+ReactDOM.render(Root, document.getElementById('root'));

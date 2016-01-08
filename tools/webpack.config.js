@@ -26,6 +26,7 @@ export default {
         query: {
           presets: ['es2015', 'stage-0', 'react'],
           plugins: [
+            ['transform-decorators-legacy'],
             [
               'react-transform', {
                 transforms: [{
@@ -33,6 +34,9 @@ export default {
                   imports: ['react'],
                   locals: ['module'],
                 }],
+              }, {
+                transform: 'react-transform-catch-errors',
+                imports: ['react', 'redbox-react'],
               },
             ],
           ],

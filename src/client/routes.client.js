@@ -1,16 +1,17 @@
+import React from 'react';
+import { Router, Route, IndexRoute } from 'react-router';
+import createBrowserHistory from 'history/lib/createBrowserHistory';
+import createMemoryHistory from 'history/lib/createMemoryHistory';
+import { canUseDOM } from 'fbjs/lib/ExecutionEnvironment';
+
 import App from './containers/App';
 import Admin from './containers/Admin';
 import Counter from './components/Counter';
 import Index from './components/Index';
 import AdminDashboard from './components/Admin/Dashboard';
-import React from 'react';
-import { Router, Route, IndexRoute } from 'react-router';
-import createBrowserHistory from 'history/lib/createBrowserHistory';
-import createMemoryHistory from 'history/lib/createMemoryHistory';
-import { isServer } from '../shared/utils' ;
 
 const createHistory = () => {
-  if (isServer()) {
+  if (!canUseDOM) {
     return createMemoryHistory();
   }
   return createBrowserHistory();
