@@ -1,13 +1,29 @@
 import App from './containers/App';
+import Admin from './containers/Admin';
 import Counter from './components/Counter';
-import React, { Component } from 'react';
+import Index from './components/Index';
+import AdminDashboard from './components/Admin/Dashboard';
+import React from 'react';
+import { Router, Route, IndexRoute } from 'react-router';
 import createBrowserHistory from 'history/lib/createBrowserHistory';
-import { Router, Route, browserHistory } from 'react-router';
+import createMemoryHistory from 'history/lib/createMemoryHistory';
+import { isServer } from '../shared/utils' ;
+
+const createHistory = () => {
+  if (isServer()) {
+    return createMemoryHistory();
+  }
+  return createBrowserHistory();
+};
 
 const routes = (
-  <Router history={createBrowserHistory()}>
+  <Router history={createHistory()}>
     <Route path="/" component={App}>
+      <IndexRoute component={Index} />
       <Route path="counter" component={Counter} />
+    </Route>
+    <Route path="/admin" component={Admin}>
+      <IndexRoute component={AdminDashboard} />
     </Route>
   </Router>
 );

@@ -9,7 +9,6 @@ import config from '../config.js';
 import webpackConfig from './webpack.config.js';
 import { match, RoutingContext } from 'react-router';
 import routes from '../src/client/routes.client.js';
-import App from '../src/client/containers/App';
 
 const app = express();
 
