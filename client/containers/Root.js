@@ -4,7 +4,8 @@ import configureStore from '../store.js';
 import Routes from '../routes.client.js';
 import DevTools from '../containers/DevTools';
 
-const store = configureStore();
+const initialState = JSON.parse(document.getElementById('__INITIAL_STATE__').innerHTML);
+const store = configureStore(initialState);
 
 let devTools = null;
 

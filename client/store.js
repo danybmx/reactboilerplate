@@ -7,10 +7,16 @@ import rootReducer from './reducers';
 const loggerMiddleware = createLogger();
 let createStoreWithMiddleware;
 
-createStoreWithMiddleware = compose(
-  applyMiddleware(thunkMiddleware, loggerMiddleware),
-  DevTools.instrument()
-)(createStore);
+if (__DEVELOPMENT__) { // eslint-disable-line no-undef
+  createStoreWithMiddleware = compose(
+    applyMiddleware(thunkMiddleware, loggerMiddleware),
+    DevTools.instrument()
+  )(createStore);
+} else {
+  createStoreWithMiddleware = compose(
+    applyMiddleware(thunkMiddleware)
+  )(createStore);
+}
 
 export default function configureStore(initialState) {
   return createStoreWithMiddleware(rootReducer, initialState);

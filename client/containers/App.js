@@ -1,9 +1,13 @@
 import React, { Component, PropTypes } from 'react';
-import Radium from 'radium';
+import Radium, { Style } from 'radium';
+import layoutStyle from '../styles/layout';
 
 const styles = {
-  root: {
-    backgroundColor: 'red',
+  base: {
+    backgroundColor: 'black',
+    padding: 20,
+    color: 'white',
+    fontWeight: 'bold',
   },
 };
 
@@ -15,7 +19,8 @@ export default class App extends Component {
 
   render() {
     return (
-      <div className="app-root" style={styles.root}>
+      <div className="app-root" style={styles.base}>
+        <Style rules={layoutStyle} />
         <div className="app-header">App</div>
         {this.props.children}
       </div>

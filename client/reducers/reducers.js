@@ -20,7 +20,7 @@ function counter(state = {
       });
     case REQUEST_ADD:
       return Object.assign({}, state, {
-        count: state.count + 1,
+        count: state.count + state.inc,
       });
     default:
       return state;

@@ -11,10 +11,10 @@ import { match, RoutingContext } from 'react-router';
 import { Provider } from 'react-redux';
 
 import config from '../config.js';
-import routes from '../src/client/routes.client.js';
-import configureStore from '../src/client/store.js';
-import DevTools from '../src/client/containers/DevTools';
-import apiRoutes from '../src/server/routes.server.js';
+import routes from '../client/routes.client.js';
+import configureStore from '../client/store.js';
+import DevTools from '../client/containers/DevTools';
+import apiRoutes from '../server/routes.server.js';
 
 const app = express();
 
@@ -33,6 +33,7 @@ global.navigator = {
 };
 
 if (config.env === 'development') {
+  webpackConfig.plugins.unshift(new webpack.HotModuleReplacementPlugin());
   webpackConfig.plugins.push(new webpack.DefinePlugin({
     __DEVELOPMENT__: true,
   }));
@@ -55,7 +56,7 @@ if (config.env === 'development') {
 }
 
 // Static assets
-app.use(express.static(config.paths.dist));
+app.use(express.static(config.paths.static));
 
 // Api routing
 const apiRouter = express.Router(); // eslint-disable-line new-cap
@@ -70,10 +71,14 @@ app.use('*', (req, res, next) => {
       } else if (redirectLocation) {
         res.redirect(302, redirectLocation.pathname + redirectLocation.search);
       } else if (renderProps) {
-        // Initialize store
-        const store = configureStore();
-        let markup;
+        // Set initialState for the store
+        const initialState = {};
 
+        // Initialize store
+        const store = configureStore(initialState);
+
+        // Create start markup
+        let markup;
         if (config.env === 'development') {
           markup = ReactDOM.renderToString(<Provider store={store}>
             <div>
@@ -91,8 +96,8 @@ app.use('*', (req, res, next) => {
 
         // Render on layout
         res.render('layout', {
-          jsonProps: JSON.stringify(renderProps),
-          title: 'React-Boilerplate',
+          initialState: JSON.stringify(initialState),
+          title: '--- React Boilerplate ---',
           markup,
         });
       } else {

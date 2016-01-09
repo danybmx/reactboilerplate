@@ -1,5 +1,5 @@
 export default {
   initialCount(req, res) {
-    res.send({ initialCount: 10 });
+    res.send({ initialCount: 23 });
   },
 };
