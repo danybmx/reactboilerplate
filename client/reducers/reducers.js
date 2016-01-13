@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux';
 import {
-  REQUEST_INITIAL_COUNT, RECEIVE_INITIAL_COUNT, REQUEST_ADD,
+  REQUEST_INITIAL_COUNT, RECEIVE_INITIAL_COUNT, REQUEST_ADD, SET_COUNT, 
 } from '../actions';
 
 function counter(state = {
@@ -21,6 +21,10 @@ function counter(state = {
     case REQUEST_ADD:
       return Object.assign({}, state, {
         count: state.count + state.inc,
+      });
+    case SET_COUNT:
+      return Object.assign({}, state, {
+        count: action.count,
       });
     default:
       return state;

@@ -1,4 +1,5 @@
 import express from 'express';
+import io from 'socket.io';
 import handlebars from 'express-handlebars';
 import webpack from 'webpack';
 import webpackDevMiddleware from 'webpack-dev-middleware';
@@ -15,6 +16,8 @@ import routes from '../client/routes.client.js';
 import configureStore from '../client/store.js';
 import DevTools from '../client/containers/DevTools';
 import apiRoutes from '../server/routes.server.js';
+
+import ioActions from '../server/io.server.js';
 
 const app = express();
 
@@ -109,7 +112,12 @@ app.use('*', (req, res, next) => {
   }
 });
 
-app.listen(config.port, '0.0.0.0', () => {
+const server = app.listen(config.port, '0.0.0.0', () => {
   /* eslint no-console:0 */
   console.log('-> 🌎  Listening on %s!', config.port);
+});
+
+const ioServer = io(server);
+ioServer.on('connection', (socket) => {
+  ioActions(socket);
 });
