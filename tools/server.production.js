@@ -1,55 +1,34 @@
 import express from 'express';
 import io from 'socket.io';
 import handlebars from 'express-handlebars';
-import winston from 'winston';
 
-// Import config
-import config from '../config';
+import passport from '../server/config/passport';
+import database from '../server/config/passport';
 
-// Server-side
-import configureDatabase from '../config/database';
+import config from '../config.js';
+import routes from '../client/routes.client.js';
+import configureStore from '../client/store.js';
+import DevTools from '../client/containers/DevTools';
+
 import apiRoutes from '../server/routes.server.js';
 import ioActions from '../server/io.server.js';
 
-// Client-side
 import React from 'react';
 import ReactDOM from 'react-dom/server';
 import { match, RoutingContext } from 'react-router';
 import { Provider } from 'react-redux';
-
-import routes from '../client/routes.client.js';
-import reactConfigureStore from '../client/store.js';
-import reactDevTools from '../client/containers/DevTools';
 
 // Development dependencies
 import webpack from 'webpack';
 import webpackDevMiddleware from 'webpack-dev-middleware';
 import webpackHotMiddleware from 'webpack-hot-middleware';
 import webpackConfig from './webpack.config.js';
+global.__DEVELOPMENT__ = true;
 
-// ---------
-// Initialize express
-// ---------
 const app = express();
 
 // ---------
-// Setup the logger
-// ---------
-winston.level = 'debug';
-winston.add(winston.transports.File, { filename: 'logs/server.log' });
-
-// ---------
-// Connect to mongoDB
-// ---------
-configureDatabase();
-
-// ---------
-// Configure passport
-// ---------
-// app.use(configurePassport);
-
-// ---------
-// Configure express views
+// Configure express App
 // ---------
 app.engine('handlebars', handlebars());
 app.set('view engine', 'handlebars');
@@ -89,6 +68,11 @@ app.use(webpackMiddleware);
 app.use(webpackHotMiddleware(compiler));
 
 // ---------
+// Configure static resources
+// ---------
+app.use(express.static(config.paths.static));
+
+// ---------
 // Configure api/server routes
 // ---------
 const apiRouter = express.Router(); // eslint-disable-line new-cap
@@ -109,7 +93,7 @@ app.use('*', (req, res, next) => {
         const initialState = res.initialState || {};
 
         // Initialize store
-        const store = reactConfigureStore(initialState);
+        const store = configureStore(initialState);
 
         // Create start markup
         let markup;
@@ -117,7 +101,7 @@ app.use('*', (req, res, next) => {
           markup = ReactDOM.renderToString(<Provider store={store}>
             <div>
               <RoutingContext {...renderProps} />
-              <reactDevTools />
+              <DevTools />
             </div>
           </Provider>);
         } else {
@@ -131,7 +115,7 @@ app.use('*', (req, res, next) => {
         // Render on layout
         res.render('layout', {
           initialState: JSON.stringify(initialState),
-          title: config.meta.title,
+          title: '--- React Boilerplate ---',
           markup,
         });
       } else {
@@ -142,11 +126,6 @@ app.use('*', (req, res, next) => {
     next(err);
   }
 });
-
-// ---------
-// Configure static resources
-// ---------
-app.use(express.static(config.paths.static));
 
 const server = app.listen(config.port, '0.0.0.0', () => {
   /* eslint no-console:0 */
