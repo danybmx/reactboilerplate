@@ -3,17 +3,19 @@ import config from '../../config';
 
 export default {
   devtool: 'source-map',
-  context: config.paths.root,
+  context: config.paths.client,
   entry: [
     'webpack-hot-middleware/client?__webpack_hmr&reload=true',
     config.paths.client + '/main.client.js',
   ],
   output: {
-    path: config.paths.assets,
-    publicPath: '/assets/',
+    path: config.paths.assets + '/js',
+    publicPath: '/assets/js/',
     filename: 'bundle.js',
   },
   plugins: [
+    new webpack.HotModuleReplacementPlugin(),
+    new webpack.DefinePlugin({ __DEVELOPMENT__: true }),
     new webpack.optimize.OccurenceOrderPlugin(),
   ],
   module: {

@@ -12,14 +12,13 @@ export default {
   body: {
     margin: 0,
     minHeight: '100%',
-    color: '#555',
   },
   a: {
     textDecoration: 'none',
-    color: '#444',
-    cursor: 'pointer',
+    color: '#000000',
   },
   'a:hover': {
-    color: '#000',
+    textDecoration: 'underline',
+    color: variables.warningColor,
   },
 };

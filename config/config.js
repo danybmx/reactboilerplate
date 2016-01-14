@@ -36,4 +36,6 @@ switch (config.env) {
     break;
 }
 
+global.__DEVELOPMENT__ = (config.env === 'development');
+
 export default config;

@@ -12,15 +12,13 @@ export default {
   },
   passport: {
     twitter: {
-      consumerKey: '',
-      consumerSecret: '',
+      consumerKey: '-',
+      consumerSecret: '-',
     },
     facebook: {
-      clientID: '',
-      clientSecret: '',
+      clientID: '-',
+      clientSecret: '-',
       scope: ['public_profile', 'email'],
     },
   },
 };
-
-global.__DEVELOPMENT__ = true;

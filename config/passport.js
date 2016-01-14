@@ -1,16 +1,30 @@
+import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import { Strategy as FacebookStrategy } from 'passport-facebook';
 import { Strategy as TwitterStrategy } from 'passport-twitter';
+import mongoose from 'mongoose';
 
 import config from '../config';
 
-export default function (passport) {
+export default function (app) {
+  const User = mongoose.model('User');
+
   // ---------
   // Configure local strategy
   // ---------
-  passport.use(new LocalStrategy((username, password, done) => {
-    done(null, {});
-  }));
+  passport.use(new LocalStrategy({
+    usernameField: 'email',
+    passwordField: 'password',
+  }, (username, password, done) => {
+    User.findOne({
+      username,
+    }, (err, user) => {
+      console.log(err);
+      console.log(user);
+      done();
+    });
+  })
+);
 
   // ---------
   // Configure twitter strategy
@@ -35,4 +49,6 @@ export default function (passport) {
     // Login or register
     done(null, {});
   }));
+
+  app.use(passport.initialize());
 }

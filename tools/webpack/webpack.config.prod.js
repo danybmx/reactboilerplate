@@ -2,13 +2,13 @@ import webpack from 'webpack';
 import config from '../../config';
 
 export default {
-  context: config.paths.root,
+  context: config.paths.client,
   entry: [
     config.paths.client + '/main.client.js',
   ],
   output: {
-    path: config.paths.assets,
-    publicPath: '/assets/',
+    path: config.paths.assets + '/js',
+    publicPath: '/assets/js/',
     library: 'bundle',
     filename: 'bundle.js',
   },
