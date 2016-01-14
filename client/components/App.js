@@ -1,9 +1,11 @@
 // Dependencies
 import React, { Component, PropTypes } from 'react';
+import { connect } from 'react-redux';
 import Radium, { Style } from 'radium';
 
 // Components
-import Header from '../components/Header';
+import Header from './Elements/Header';
+import Flash from './Elements/Flash';
 
 // Styles
 import layoutStyle from '../styles/layout';
@@ -17,9 +19,10 @@ const styles = {
 };
 
 @Radium
-export default class App extends Component {
+class App extends Component {
   static propTypes = {
     children: PropTypes.element.isRequired,
+    loggedIn: PropTypes.bool,
   };
 
   render() {
@@ -27,6 +30,7 @@ export default class App extends Component {
       <div className="app-root" style={styles.base}>
         <Style rules={layoutStyle} />
         <Header />
+        <Flash />
         <div className="app-content">
           {this.props.children}
         </div>
@@ -34,3 +38,11 @@ export default class App extends Component {
     );
   }
 }
+
+function select(state) {
+  return {
+    loggedIn: state.auth.loggedIn,
+  };
+}
+
+export default connect(select)(App);

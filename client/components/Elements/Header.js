@@ -1,5 +1,7 @@
 // Dependencies
 import React, { Component, PropTypes } from 'react';
+import { connect } from 'react-redux';
+import { Link } from 'react-router';
 import Radium from 'radium';
 
 // Components
@@ -7,7 +9,7 @@ import PublicNavigation from './Navigation/Public';
 import AuthenticatedNavigation from './Navigation/Authenticated';
 
 // Style variables
-import v from '../styles/variables';
+import v from '../../styles/variables';
 
 const styles = {
   base: {
@@ -32,7 +34,7 @@ const styles = {
 };
 
 @Radium
-export default class Header extends Component {
+class Header extends Component {
   static propTypes = {
     user: PropTypes.object,
   };
@@ -47,7 +49,9 @@ export default class Header extends Component {
       <header style={styles.base}>
         <div style={styles.container}>
           <div style={styles.logoContainer}>
-            <img src="/assets/img/logo-header.png" alt="SPVtracking" style={styles.logo} />
+            <Link to="/">
+              <img src="/assets/img/logo-header.png" alt="SPVtracking" style={styles.logo} />
+            </Link>
           </div>
           { Navigation }
         </div>
@@ -55,3 +59,11 @@ export default class Header extends Component {
     );
   }
 }
+
+function select(state) {
+  return {
+    user: state.user,
+  };
+}
+
+export default connect(select)(Header);

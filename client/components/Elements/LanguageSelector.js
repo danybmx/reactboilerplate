@@ -3,8 +3,11 @@ import React, { Component } from 'react';
 import Radium from 'radium';
 import color from 'color';
 
+// Components
+import Overlay from './Overlay';
+
 // Style variables
-import v from '../styles/variables';
+import v from '../../styles/variables';
 
 const styles = {
   languageSelector: {
@@ -15,6 +18,7 @@ const styles = {
   languageSelectorButton: {
     display: 'inline-block',
     color: '#FFF',
+    zIndex: 2,
     padding: '6px 10px 4px',
     ':hover': {
       backgroundColor: 'white',
@@ -37,6 +41,7 @@ const styles = {
     margin: 0,
     padding: 0,
     minWidth: '100%',
+    zIndex: 2,
   },
   languageListItem: {
     display: 'block',
@@ -58,9 +63,18 @@ export default class LanguageSelector extends Component {
     this.setState({ selectLanguage: !!!this.state.selectLanguage });
   }
 
+  closeSelector() {
+    this.setState({ selectLanguage: false });
+  }
+
   render() {
+    let overlay;
+    if (this.state.selectLanguage) {
+      overlay = <Overlay clickHandler={this.closeSelector.bind(this)} opacity={0} zIndex={-1} />;
+    }
     return (
       <div style={styles.languageSelector}>
+        { overlay }
         <a
           style={[
             styles.languageSelectorButton,

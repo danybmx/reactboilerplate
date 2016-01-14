@@ -1,7 +1,10 @@
 import express from 'express';
 import io from 'socket.io';
-import handlebars from 'express-handlebars';
 import winston from 'winston';
+import morgan from 'morgan';
+import handlebars from 'express-handlebars';
+import session from 'express-session';
+import connectMongo from 'connect-mongo';
 
 // Import config
 import config from '../config';
@@ -17,10 +20,9 @@ import React from 'react';
 import ReactDOM from 'react-dom/server';
 import { match, RoutingContext } from 'react-router';
 import { Provider } from 'react-redux';
+import { syncReduxAndRouter } from 'redux-simple-router';
 
-import routes from '../client/routes.client.js';
-import reactConfigureStore from '../client/store.js';
-import DevTools from '../client/containers/DevTools';
+import { routes, initializeStore } from '../client/main.client.js';
 
 // Development dependencies
 import webpack from 'webpack';
@@ -28,17 +30,34 @@ import webpackDevMiddleware from 'webpack-dev-middleware';
 import webpackHotMiddleware from 'webpack-hot-middleware';
 import webpackConfig from './webpack.config.js';
 
-configureDatabase(() => {
+configureDatabase((mongoose) => {
   // ---------
   // Initialize express
   // ---------
   const app = express();
 
   // ---------
-  // Setup the logger
+  // Setup the loggers
   // ---------
   winston.level = 'debug';
   winston.add(winston.transports.File, { filename: 'logs/server.log' });
+  // app.use(morgan('tiny'));
+
+  // ---------
+  // Initialize sessions
+  // ---------
+  const MongoStore = connectMongo(session);
+  app.use(session({
+    saveUninitialized: true,
+    resave: true,
+    secret: config.sessionSecret,
+    cookies: {
+      maxAge: 7 * 24 * 3600 * 1000,
+    },
+    store: new MongoStore({
+      mongooseConnection: mongoose.connection,
+    }),
+  }));
 
   // ---------
   // Configure passport
@@ -89,42 +108,48 @@ configureDatabase(() => {
   app.use('/api', apiRoutes(apiRouter));
 
   // ---------
-  // Configure isomorphic routes
+  // Configure isomorphic app
   // ---------
   app.use('*', (req, res, next) => {
     try {
+      // Set initialState for the store
+      const initialState = res.initialState || {};
+
+      // Initialize store
+      const store = global.store = initializeStore(initialState);
+
       match({ routes, location: req.originalUrl }, (error, redirectLocation, renderProps) => {
         if (error) {
           res.status(500).send(error.message);
         } else if (redirectLocation) {
           res.redirect(302, redirectLocation.pathname + redirectLocation.search);
         } else if (renderProps) {
-          // Set initialState for the store
-          const initialState = res.initialState || {};
-
-          // Initialize store
-          const store = reactConfigureStore(initialState);
-
           // Create start markup
           let markup;
           if (config.env === 'development') {
-            markup = ReactDOM.renderToString(<Provider store={store}>
-              <div>
-                <RoutingContext {...renderProps} />
-                <DevTools />
-              </div>
-            </Provider>);
+            markup = ReactDOM.renderToString(
+              <Provider store={store}>
+                <div>
+                  <RoutingContext {...renderProps} />
+                </div>
+              </Provider>
+            );
           } else {
-            markup = ReactDOM.renderToString(<Provider store={store}>
-              <div>
-                <RoutingContext {...renderProps} />
-              </div>
-            </Provider>);
+            markup = ReactDOM.renderToString(
+              <Provider store={store}>
+                <div>
+                  <RoutingContext {...renderProps} />
+                </div>
+              </Provider>
+            );
           }
+
+          console.log(store.getState());
+          const finalState = store.getState();
 
           // Render on layout
           res.render('layout', {
-            initialState: JSON.stringify(initialState),
+            initialState: JSON.stringify(finalState),
             title: config.meta.title,
             markup,
           });

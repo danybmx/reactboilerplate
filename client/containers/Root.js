@@ -1,7 +1,6 @@
 import React from 'react';
 import { Provider } from 'react-redux';
 import configureStore from '../store.js';
-import Routes from '../routes.client.js';
 import DevTools from '../containers/DevTools';
 
 const initialState = JSON.parse(document.getElementById('__INITIAL_STATE__').innerHTML);
@@ -14,6 +13,8 @@ if (__DEVELOPMENT__) { // eslint-disable-line no-undef
     <DevTools />
   );
 }
+
+import Routes from '../routes.client.js';
 
 const Root = (
   <Provider store={store}>

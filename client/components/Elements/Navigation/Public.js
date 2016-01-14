@@ -5,9 +5,6 @@ import Radium from 'radium';
 // Components
 import LanguageSelector from '../LanguageSelector';
 
-// Style variables
-import v from '../../styles/variables';
-
 const styles = {
   base: {
     height: 40,

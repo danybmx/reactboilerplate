@@ -2,7 +2,8 @@
   "parser": "babel-eslint",
   "extends": "airbnb",
   "globals": {
-    "__DEV__": true
+    "__DEVELOPMENT__": true,
+    "store": true
   },
   "rules": {
     "react/jsx-quotes": 0,
