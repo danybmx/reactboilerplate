@@ -1,16 +1,24 @@
 import passport from 'passport';
 
 export default {
-  logginWithFacebook: () => {
+  logginWithFacebook: (req, res) => {
     passport.authenticate('facebook', {
       successRedirect: '/',
       failureRedirect: '/',
     });
   },
-  logginWithTwitter: () => {
-
+  logginWithTwitter: (req, res) => {
+    passport.authenticate('twitter', {
+      successRedirect: '/',
+      failureRedirect: '/',
+    });
   },
-  logginWithUser: () => {
-
+  logginWithPassword: (req, res) => {
+    res.send(JSON.stringify({
+      user: {
+        username: req.body.username,
+        password: req.body.password,
+      },
+    }));
   },
 };

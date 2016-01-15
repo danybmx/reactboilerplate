@@ -12,8 +12,11 @@ import createBrowserHistory from 'history/lib/createBrowserHistory';
 import createMemoryHistory from 'history/lib/createMemoryHistory';
 import { syncReduxAndRouter, routeReducer } from 'redux-simple-router';
 
-// App reducers
+// App Reducers
 import reducers from './reducers';
+
+// App Actions
+import { clearFlash, clearFlashOnNext } from './actions';
 
 // Auth utils
 import { requireAuth } from './utils/auth';
@@ -74,12 +77,23 @@ if (canUseDOM) {
   syncReduxAndRouter(history, store);
 }
 
+// Flash cleaner
+history.listen(() => {
+  if (store.getState().flash.message) {
+    if (store.getState().flash.clearOnNext) {
+      store.dispatch(clearFlash());
+    } else {
+      store.dispatch(clearFlashOnNext());
+    }
+  }
+});
+
 export const routes = (
   <div>
     <Router history={history}>
       <Route path="/" component={App}>
         <IndexRoute component={HomePage} onEnter={requireAuth} />
-        <Route path="login" component={LoginPage} />
+        <Route path="login" store={store} component={LoginPage} />
       </Route>
     </Router>
   </div>

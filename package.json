@@ -25,6 +25,7 @@
   "dependencies": {
     "autoprefixer-loader": "^3.1.0",
     "babel-core": "^6.4.0",
+    "body-parser": "^1.14.2",
     "chalk": "^1.1.1",
     "color": "^0.11.1",
     "connect-mongo": "^1.1.0",
@@ -37,6 +38,7 @@
     "hjs": "0.0.6",
     "isomorphic-fetch": "^2.2.0",
     "kerberos": "0.0.17",
+    "method-override": "^2.3.5",
     "mongoose": "^4.3.5",
     "morgan": "^1.6.1",
     "passport": "^0.3.2",

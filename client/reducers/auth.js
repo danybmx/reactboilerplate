@@ -10,14 +10,9 @@ export default function auth(state = {
 }, action) {
   switch (action.type) {
     case REQUEST_LOGIN:
-      return Object.assign({}, state, {
-        isFetching: true,
-      });
+      return Object.assign({}, state, action.state);
     case RECEIVE_LOGIN:
-      return Object.assign({}, state, {
-        isFetching: false,
-        count: action.count,
-      });
+      return Object.assign({}, state, action.state);
     default:
       return state;
   }

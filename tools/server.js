@@ -5,6 +5,8 @@ import morgan from 'morgan';
 import handlebars from 'express-handlebars';
 import session from 'express-session';
 import connectMongo from 'connect-mongo';
+import bodyParser from 'body-parser';
+import methodOverride from 'method-override';
 
 // Import config
 import config from '../config';
@@ -20,7 +22,6 @@ import React from 'react';
 import ReactDOM from 'react-dom/server';
 import { match, RoutingContext } from 'react-router';
 import { Provider } from 'react-redux';
-import { syncReduxAndRouter } from 'redux-simple-router';
 
 import { routes, initializeStore } from '../client/main.client.js';
 
@@ -41,7 +42,16 @@ configureDatabase((mongoose) => {
   // ---------
   winston.level = 'debug';
   winston.add(winston.transports.File, { filename: 'logs/server.log' });
-  // app.use(morgan('tiny'));
+  app.use(morgan('tiny'));
+
+  // ---------
+  // Setup parsers
+  // ---------
+  app.use(bodyParser.urlencoded({
+    extended: true,
+  }));
+  app.use(bodyParser.json());
+  app.use(methodOverride());
 
   // ---------
   // Initialize sessions
@@ -124,34 +134,44 @@ configureDatabase((mongoose) => {
         } else if (redirectLocation) {
           res.redirect(302, redirectLocation.pathname + redirectLocation.search);
         } else if (renderProps) {
-          // Create start markup
-          let markup;
-          if (config.env === 'development') {
-            markup = ReactDOM.renderToString(
-              <Provider store={store}>
-                <div>
-                  <RoutingContext {...renderProps} />
-                </div>
-              </Provider>
-            );
-          } else {
-            markup = ReactDOM.renderToString(
-              <Provider store={store}>
-                <div>
-                  <RoutingContext {...renderProps} />
-                </div>
-              </Provider>
-            );
-          }
+          const getReduxPromise = () => {
+            const { query, params } = renderProps;
+            const comp = renderProps.components[renderProps.components.length - 1].WrappedComponent;
+            const promise = comp.fetchData ?
+              comp.fetchData({ query, params, store, history }) :
+              Promise.resolve();
 
-          console.log(store.getState());
-          const finalState = store.getState();
+            return promise;
+          };
 
-          // Render on layout
-          res.render('layout', {
-            initialState: JSON.stringify(finalState),
-            title: config.meta.title,
-            markup,
+          getReduxPromise().then(() => {
+            const reduxState = JSON.stringify(store.getState());
+
+            let markup;
+            if (config.env === 'development') {
+              markup = ReactDOM.renderToString(
+                <Provider store={store}>
+                  <div>
+                    <RoutingContext {...renderProps} />
+                  </div>
+                </Provider>
+              );
+            } else {
+              markup = ReactDOM.renderToString(
+                <Provider store={store}>
+                  <div>
+                    <RoutingContext {...renderProps} />
+                  </div>
+                </Provider>
+              );
+            }
+
+            // Render on layout
+            res.render('layout', {
+              initialState: reduxState,
+              title: config.meta.title,
+              markup,
+            });
           });
         } else {
           res.status(404).send('Not found');
