@@ -1,9 +1,19 @@
-import { setFlash } from '../actions';
-import v from '../styles/variables';
+export function bindCheckAuth(store, onFail) {
+  return (nextState, replaceState, callback) => {
+    const resolveAuth = (resolve, reject) => {
+      if (!store.getState().auth) {
+        return setTimeout(() => resolveAuth(resolve, reject), 25);
+      }
 
-export function requireAuth(nextState, replaceState) {
-  if (!store.getState().auth.loggedIn || !store.getState().auth.user) {
-    store.dispatch(setFlash('Restricted area', v.dangerColor));
-    replaceState({ nextPathname: nextState.location.pathname }, '/login');
-  }
+      if (store.getState().auth.loggedIn) {
+        resolve();
+      } else {
+        reject();
+      }
+    };
+
+    new Promise(resolveAuth)
+      .then(() => { callback(); })
+      .catch(() => onFail(nextState, replaceState, callback));
+  };
 }

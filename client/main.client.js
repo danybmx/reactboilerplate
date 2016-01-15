@@ -10,16 +10,16 @@ import thunkMiddleware from 'redux-thunk';
 
 import createBrowserHistory from 'history/lib/createBrowserHistory';
 import createMemoryHistory from 'history/lib/createMemoryHistory';
-import { syncReduxAndRouter, routeReducer } from 'redux-simple-router';
+import { syncHistory, routeReducer } from 'redux-simple-router';
 
 // App Reducers
 import reducers from './reducers';
 
 // App Actions
-import { clearFlash, clearFlashOnNext } from './actions';
+import { initializeState } from './actions';
 
 // Auth utils
-import { requireAuth } from './utils/auth';
+import { bindCheckAuth } from './utils/auth';
 
 // DevTools
 import { createDevTools } from 'redux-devtools';
@@ -47,53 +47,63 @@ if (__DEVELOPMENT__) { // eslint-disable-line
   );
 }
 
+// History
+let history;
+if (!canUseDOM) {
+  global._history = history = createMemoryHistory();
+} else {
+  window._history = history = createBrowserHistory();
+}
+
+const reduxRouterMiddleware = syncHistory(history);
+
 let finalCreateStore;
 if (__DEVELOPMENT__) {
   finalCreateStore = compose(
-    applyMiddleware(thunkMiddleware),
+    applyMiddleware(thunkMiddleware, reduxRouterMiddleware),
     DevTools.instrument()
   )(createStore);
 } else {
   finalCreateStore = compose(
-    applyMiddleware(thunkMiddleware)
+    applyMiddleware(thunkMiddleware, reduxRouterMiddleware)
   )(createStore);
 }
 
-// History
-let history;
-if (!canUseDOM) {
-  history = createMemoryHistory();
-} else {
-  history = createBrowserHistory();
+const store = finalCreateStore(reducer);
+
+export function initializeStore(initialState) {
+  reduxRouterMiddleware.listenForReplays(store);
+  store.dispatch(initializeState(initialState));
+  return store;
 }
 
-let store;
 // Initialize store if it's running on browser
 if (canUseDOM) {
   const initialState = JSON.parse(document.getElementById('__INITIAL_STATE__').innerHTML);
-  store = finalCreateStore(reducer, initialState);
-  window.store = store;
-
-  syncReduxAndRouter(history, store);
+  initializeStore(initialState);
 }
 
-// Flash cleaner
-history.listen(() => {
-  if (store.getState().flash.message) {
-    if (store.getState().flash.clearOnNext) {
-      store.dispatch(clearFlash());
-    } else {
-      store.dispatch(clearFlashOnNext());
-    }
+// Bind Auth
+const requireAuth = bindCheckAuth(
+  store,
+  (nextState, replaceState, callback) => {
+    replaceState({
+      nextPathname: nextState.location.pathname,
+      flash: {
+        type: 'error',
+        message: 'Restricted Area',
+      },
+    }, '/login');
+    callback();
   }
-});
+);
 
 export const routes = (
   <div>
     <Router history={history}>
       <Route path="/" component={App}>
         <IndexRoute component={HomePage} onEnter={requireAuth} />
-        <Route path="login" store={store} component={LoginPage} />
+        <Route path="login" component={LoginPage} />
       </Route>
     </Router>
   </div>
@@ -109,11 +119,4 @@ if (canUseDOM) {
   if (__DEVELOPMENT__) {
     ReactDOM.render(<DevTools store={store} />, document.getElementById('debug'));
   }
-}
-
-export function initializeStore(initialState) {
-  const serverStore = finalCreateStore(reducer, initialState);
-  syncReduxAndRouter(history, serverStore);
-
-  return serverStore;
 }

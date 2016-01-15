@@ -22,7 +22,8 @@ const styles = {
 class App extends Component {
   static propTypes = {
     children: PropTypes.element.isRequired,
-    loggedIn: PropTypes.bool,
+    auth: PropTypes.object,
+    routing: PropTypes.object,
   };
 
   render() {
@@ -39,10 +40,4 @@ class App extends Component {
   }
 }
 
-function select(state) {
-  return {
-    loggedIn: state.auth.loggedIn,
-  };
-}
-
-export default connect(select)(App);
+export default connect(state => state)(App);

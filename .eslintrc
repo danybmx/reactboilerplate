@@ -3,7 +3,8 @@
   "extends": "airbnb",
   "globals": {
     "__DEVELOPMENT__": true,
-    "store": true
+    "_store": true,
+    "_history": true
   },
   "rules": {
     "react/jsx-quotes": 0,

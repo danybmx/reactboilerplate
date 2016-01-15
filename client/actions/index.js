@@ -1,3 +1,3 @@
 // Redux Actions
 export * from './auth';
-export * from './flash';
+export * from './initialize';

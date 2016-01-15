@@ -36,12 +36,12 @@ const styles = {
 @Radium
 class Header extends Component {
   static propTypes = {
-    user: PropTypes.object,
+    loggedIn: PropTypes.bool,
   };
 
   render() {
     let Navigation = <PublicNavigation />;
-    if (this.props.user) {
+    if (this.props.loggedIn) {
       Navigation = <AuthenticatedNavigation />;
     }
 
@@ -62,7 +62,7 @@ class Header extends Component {
 
 function select(state) {
   return {
-    user: state.user,
+    loggedIn: state.auth.loggedIn,
   };
 }
 

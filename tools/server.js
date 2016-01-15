@@ -126,7 +126,7 @@ configureDatabase((mongoose) => {
       const initialState = res.initialState || {};
 
       // Initialize store
-      const store = global.store = initializeStore(initialState);
+      const store = initializeStore(initialState);
 
       match({ routes, location: req.originalUrl }, (error, redirectLocation, renderProps) => {
         if (error) {
