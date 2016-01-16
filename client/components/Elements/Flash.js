@@ -2,6 +2,7 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import Radium from 'radium';
+import { clearFlash } from '../../actions';
 
 const styles = {
   base: {
@@ -10,39 +11,42 @@ const styles = {
   hidden: {
     display: 'none',
   },
+  success: {
+    color: 'green',
+  },
+  error: {
+    color: 'red',
+  },
 };
 
 @Radium
 class Flash extends Component {
   static propTypes = {
-    flash: PropTypes.any,
+    flash: PropTypes.object.isRequired,
     dispatch: PropTypes.func,
   };
 
-  state = {
-    visible: true,
-  };
-
-  componentWillReceiveProps = (nextProps) => {
-    if (nextProps.flash !== this.props.flash) {
-      this.setState({ visible: true });
-    }
-  };
-
   handleClick = () => {
-    this.setState({ visible: false });
+    this.props.dispatch(clearFlash());
   };
 
   render() {
-    let message;
-    if (this.props.flash && this.state.visible) {
-      message = `${this.props.flash.message} - ${this.props.flash.type}`;
+    const flashStyle = [];
+    if (this.props.flash.message) {
+      flashStyle.push(styles.base);
+
+      flashStyle.push(styles[this.props.flash.type]
+        ? styles[this.props.flash.type]
+        : {});
+
+      flashStyle.push(this.props.flash.style);
+    } else {
+      flashStyle.push(styles.hidden);
     }
+
     return (
-      <div style={[
-        this.props.flash && this.state.visible ? styles.base : styles.hidden,
-      ]}>
-        {message}
+      <div style={flashStyle}>
+        {this.props.flash.message}
         <button onClick={this.handleClick}>Close</button>
       </div>
     );
@@ -51,9 +55,7 @@ class Flash extends Component {
 
 function select(state) {
   return {
-    flash: state.routing && state.routing.location.state
-      ? state.routing.location.state.flash
-      : false,
+    flash: state.flash,
   };
 }
 

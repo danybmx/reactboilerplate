@@ -3,14 +3,14 @@ import passport from 'passport';
 export default {
   logginWithFacebook: (req, res) => {
     passport.authenticate('facebook', {
-      successRedirect: '/',
-      failureRedirect: '/',
+      successRedirect: '/api/auth/facebook',
+      failureRedirect: '/api/auth/facebook',
     });
   },
   logginWithTwitter: (req, res) => {
     passport.authenticate('twitter', {
-      successRedirect: '/',
-      failureRedirect: '/',
+      successRedirect: '/api/auth/twitter',
+      failureRedirect: '/api/auth/twitter',
     });
   },
   logginWithPassword: (req, res) => {

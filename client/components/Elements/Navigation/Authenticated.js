@@ -6,7 +6,7 @@ import { routeActions } from 'redux-simple-router';
 import Radium from 'radium';
 
 // Actions
-import { logout } from '../../../actions';
+import { logout, setFlash } from '../../../actions';
 
 const styles = {
   base: {
@@ -26,15 +26,8 @@ class AuthenticatedNavigation extends Component {
     switch (ev.target.dataset.ref) {
       case 'logout':
         return this.props.dispatch(logout(() => {
-          this.props.dispatch(routeActions.push({
-            pathname: '/login',
-            state: {
-              flash: {
-                type: 'success',
-                message: 'See you soon',
-              },
-            },
-          }));
+          this.props.dispatch(routeActions.push({ pathname: '/login' }));
+          this.props.dispatch(setFlash({ message: 'See you soon' }));
         }));
       default:
         return true;

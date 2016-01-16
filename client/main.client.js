@@ -16,7 +16,7 @@ import { syncHistory, routeReducer } from 'redux-simple-router';
 import reducers from './reducers';
 
 // App Actions
-import { initializeState } from './actions';
+import { initializeState, setFlash } from './actions';
 
 // Auth utils
 import { bindCheckAuth } from './utils/auth';
@@ -89,11 +89,8 @@ const requireAuth = bindCheckAuth(
   (nextState, replaceState, callback) => {
     replaceState({
       nextPathname: nextState.location.pathname,
-      flash: {
-        type: 'error',
-        message: 'Restricted Area',
-      },
     }, '/login');
+    store.dispatch(setFlash({ message: 'Restricted area', type: 'error' }));
     callback();
   }
 );

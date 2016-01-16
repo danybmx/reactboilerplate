@@ -5,7 +5,7 @@ import { Link } from 'react-router';
 import Radium from 'radium';
 
 // Actions
-import { loginWithPassword } from '../actions';
+import { loginWithPassword, setFlash } from '../actions';
 import { routeActions } from 'redux-simple-router';
 
 // Styles
@@ -31,15 +31,8 @@ class LoginPage extends Component {
           const pathname = this.props.routing.state && this.props.routing.state.nextPathname
           ? this.props.routing.state.nextPathname
           : '/';
-          this.props.dispatch(routeActions.push({
-            pathname,
-            state: {
-              flash: {
-                type: 'success',
-                message: `Welcome ${this.props.auth.user.username}`,
-              },
-            },
-          }));
+          this.props.dispatch(routeActions.push({ pathname }));
+          this.props.dispatch(setFlash({ message: `Welcome ${this.props.auth.user.username}` }));
         }
       })
     );
