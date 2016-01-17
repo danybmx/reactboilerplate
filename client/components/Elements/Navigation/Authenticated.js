@@ -1,12 +1,8 @@
 // Dependencies
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { routeActions } from 'redux-simple-router';
 
 import Radium from 'radium';
-
-// Actions
-import { logout, setFlash } from '../../../actions';
 
 const styles = {
   base: {
@@ -18,26 +14,11 @@ const styles = {
 
 @Radium
 class AuthenticatedNavigation extends Component {
-  static propTypes = {
-    dispatch: PropTypes.func,
-  };
-
-  handleClick = (ev) => {
-    switch (ev.target.dataset.ref) {
-      case 'logout':
-        return this.props.dispatch(logout(() => {
-          this.props.dispatch(routeActions.push({ pathname: '/login' }));
-          this.props.dispatch(setFlash({ message: 'See you soon' }));
-        }));
-      default:
-        return true;
-    }
-  };
 
   render() {
     return (
       <div style={styles.base}>
-        <button data-ref="logout" onClick={this.handleClick}>Logout</button>
+        <a href="/api/logout">Logout</a>
       </div>
     );
   }

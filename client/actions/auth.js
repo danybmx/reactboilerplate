@@ -13,7 +13,8 @@ export function receiveLogin(response) {
       loggingIn: false,
       loggedIn: response.user ? true : false,
       user: response.user,
-      error: response.error || '',
+      error: response.error || false,
+      message: response.message || '',
     },
   };
 }
@@ -23,11 +24,14 @@ export function logout(callback) {
     dispatch({
       type: REQUEST_LOGOUT,
     });
+    fetch('/api/auth', {
+      method: 'delete',
+    });
     callback();
   };
 }
 
-export function loginWithPassword(username, password, callback) {
+export function loginWithPassword(data, callback) {
   return dispatch => {
     dispatch({
       type: REQUEST_LOGIN,
@@ -38,12 +42,13 @@ export function loginWithPassword(username, password, callback) {
         error: '',
       },
     });
+
     return fetch('/api/auth', {
       method: 'post',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify(data),
     }).then((response) => {
       return response.json();
     }).then(json => {

@@ -7,16 +7,16 @@ import crypto from 'crypto';
 /**
  * A validation funtion for local strategy properties
  */
-const validateLocalStrategyProperty = (property) => {
+function validateLocalStrategyProperty(property) {
   return ((this.provider !== 'local' && !this.updated) || property.length);
-};
+}
 
 /**
  * A validation function for local strategy password
  */
-const validateLocalStrategyPassword = (password) => {
+function validateLocalStrategyPassword(password) {
   return (this.provider !== 'local' || (password && password.length > 6));
-};
+}
 
 /**
  * User Schema
@@ -41,8 +41,9 @@ const UserSchema = new Schema({
   },
   language: { type: String },
   profile: {
-    firstname: String,
-    lastname: String,
+    firstName: String,
+    lastName: String,
+    displayName: String,
     country: String,
     state: String,
     city: String,
@@ -63,6 +64,7 @@ const UserSchema = new Schema({
     source: {
       type: String,
       enum: ['web', 'mobile'],
+      defaut: 'web',
     },
     token: String,
   }],
@@ -90,7 +92,7 @@ const UserSchema = new Schema({
 /**
  * Hook a pre save method to hash the password
  */
-UserSchema.pre('save', (next) => {
+UserSchema.pre('save', function preSave(next) {
   if (this.password && this.password.length > 6) {
     this.salt = new Buffer(crypto.randomBytes(16).toString('base64'), 'base64');
     this.password = this.hashPassword(this.password);
@@ -102,7 +104,7 @@ UserSchema.pre('save', (next) => {
 /**
  * Create instance method for hashing a password
  */
-UserSchema.methods.hashPassword = (password) => {
+UserSchema.methods.hashPassword = function hashPassword(password) {
   if (this.salt && password) {
     return crypto.pbkdf2Sync(password, this.salt, 10000, 64).toString('base64');
   }
@@ -112,25 +114,24 @@ UserSchema.methods.hashPassword = (password) => {
 /**
  * Create instance method for authenticating user
  */
-UserSchema.methods.authenticate = (password) => {
+UserSchema.methods.authenticate = function authenticate(password) {
   return this.password === this.hashPassword(password);
 };
 
 /**
  * Find possible not used username
  */
-UserSchema.statics.findUniqueUsername = (username, suffix, callback) => {
-  const _this = this;
+UserSchema.statics.findUniqueUsername = function findUniqueUsername(username, suffix, callback) {
   const possibleUsername = username + (suffix || '');
 
-  _this.findOne({
+  this.findOne({
     username: possibleUsername,
   }, (err, user) => {
     if (!err) {
       if (!user) {
         callback(possibleUsername);
       } else {
-        return _this.findUniqueUsername(username, (suffix || 0) + 1, callback);
+        return this.findUniqueUsername(username, (suffix || 0) + 1, callback);
       }
     } else {
       callback(null);

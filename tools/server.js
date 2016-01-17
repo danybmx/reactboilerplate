@@ -23,7 +23,7 @@ import ReactDOM from 'react-dom/server';
 import { match, RoutingContext } from 'react-router';
 import { Provider } from 'react-redux';
 
-import { routes, initializeStore } from '../client/main.client.js';
+import { initialize } from '../client/main.client.js';
 
 // Development dependencies
 import webpack from 'webpack';
@@ -125,8 +125,18 @@ configureDatabase((mongoose) => {
       // Set initialState for the store
       const initialState = res.initialState || {};
 
+      // Set user in the initialState
+      if (req.user) {
+        initialState.auth = {
+          loggedIn: true,
+          loggingIn: false,
+          token: req.user.token,
+          user: req.user,
+        };
+      }
+
       // Initialize store
-      const store = initializeStore(initialState);
+      const { store, routes } = initialize(initialState);
 
       match({ routes, location: req.originalUrl }, (error, redirectLocation, renderProps) => {
         if (error) {
@@ -147,24 +157,13 @@ configureDatabase((mongoose) => {
           getReduxPromise().then(() => {
             const reduxState = JSON.stringify(store.getState());
 
-            let markup;
-            if (config.env === 'development') {
-              markup = ReactDOM.renderToString(
-                <Provider store={store}>
-                  <div>
-                    <RoutingContext {...renderProps} />
-                  </div>
-                </Provider>
-              );
-            } else {
-              markup = ReactDOM.renderToString(
-                <Provider store={store}>
-                  <div>
-                    <RoutingContext {...renderProps} />
-                  </div>
-                </Provider>
-              );
-            }
+            const markup = ReactDOM.renderToString(
+              <Provider store={store}>
+                <div>
+                  <RoutingContext {...renderProps} />
+                </div>
+              </Provider>
+            );
 
             // Render on layout
             res.render('layout', {

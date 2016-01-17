@@ -8,17 +8,17 @@ import Radium from 'radium';
 import v from '../styles/layout';
 
 @Radium
-class HomePage extends Component {
+class RegisterPage extends Component {
   static propTypes = {
-    user: PropTypes.object.isRequired,
+    auth: PropTypes.object.isRequired,
+    dispatch: PropTypes.func,
   };
 
   render() {
     return (
       <div>
-        Hello, I'm the homePage<br />
+        Hello, I'm the registerPage<br />
         <Link to="/login">Login!</Link>
-        {this.props.user.username}
       </div>
     );
   }
@@ -26,8 +26,8 @@ class HomePage extends Component {
 
 function select(state) {
   return {
-    user: state.auth.user,
+    auth: state.auth,
   };
 }
 
-export default connect(select)(HomePage);
+export default connect(select)(RegisterPage);

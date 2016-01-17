@@ -13,12 +13,12 @@ export default {
   },
   passport: {
     twitter: {
-      consumerKey: '-',
-      consumerSecret: '-',
+      consumerKey: 'mE2Q0rChZNHkTpjR2D27PUQOM',
+      consumerSecret: 'CivHRMQnMvrRL4Ma4cnkZkdasTJMLoWymC8ogVBXc8B4RqomUj',
     },
     facebook: {
-      clientID: '-',
-      clientSecret: '-',
+      clientID: '1604517466466155',
+      clientSecret: '9c45b5a4513782ac982528f2e071cb4e',
       scope: ['public_profile', 'email'],
     },
   },

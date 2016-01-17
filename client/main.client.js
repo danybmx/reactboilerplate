@@ -1,25 +1,26 @@
 // Dependencies
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Router, Route, IndexRoute } from 'react-router';
 import { canUseDOM } from 'fbjs/lib/ExecutionEnvironment';
+import { Router, Route, IndexRoute } from 'react-router';
 
 import { applyMiddleware, compose, createStore, combineReducers } from 'redux';
 import { Provider } from 'react-redux';
 import thunkMiddleware from 'redux-thunk';
+import { syncHistory, routeReducer } from 'redux-simple-router';
+import { reducer as formReducer } from 'redux-form';
 
 import createBrowserHistory from 'history/lib/createBrowserHistory';
 import createMemoryHistory from 'history/lib/createMemoryHistory';
-import { syncHistory, routeReducer } from 'redux-simple-router';
 
 // App Reducers
 import reducers from './reducers';
 
 // App Actions
-import { initializeState, setFlash } from './actions';
+import { setFlash } from './actions';
 
 // Auth utils
-import { bindCheckAuth } from './utils/auth';
+import { bindCheckAuth, bindCheckNoAuth, bindCheckRole } from './utils/auth';
 
 // DevTools
 import { createDevTools } from 'redux-devtools';
@@ -30,10 +31,12 @@ import DockMonitor from 'redux-devtools-dock-monitor';
 import App from './components/App';
 import HomePage from './components/HomePage';
 import LoginPage from './components/LoginPage';
+import RegisterPage from './components/RegisterPage';
 
 // Reducer
 const reducer = combineReducers(Object.assign({}, reducers, {
   routing: routeReducer,
+  form: formReducer,
 }));
 
 let DevTools;
@@ -50,9 +53,9 @@ if (__DEVELOPMENT__) { // eslint-disable-line
 // History
 let history;
 if (!canUseDOM) {
-  global._history = history = createMemoryHistory();
+  history = createMemoryHistory();
 } else {
-  window._history = history = createBrowserHistory();
+  history = createBrowserHistory();
 }
 
 const reduxRouterMiddleware = syncHistory(history);
@@ -69,51 +72,62 @@ if (__DEVELOPMENT__) {
   )(createStore);
 }
 
-const store = finalCreateStore(reducer);
-
-export function initializeStore(initialState) {
+export function initialize(initialState, render) {
+  const store = finalCreateStore(reducer, initialState);
   reduxRouterMiddleware.listenForReplays(store);
-  store.dispatch(initializeState(initialState));
-  return store;
+
+  // Bind Auth
+  const authFailCallback = (nextState, replaceState, callback, redirect, flash) => {
+    replaceState({
+      nextPathname: nextState.location.pathname,
+    }, '/');
+    if (flash) {
+      store.dispatch(setFlash({ message: flash.message, type: flash.type || 'error' }));
+    }
+    callback();
+  };
+
+  const requireAuth = bindCheckAuth(store, authFailCallback, '/login', {
+    message: 'Restricted area',
+  });
+  const requireNoAuth = bindCheckNoAuth(store, authFailCallback, '/', {
+    message: `You are already logged in`,
+  });
+  const requireAdminRole = bindCheckRole(store, 'admin', authFailCallback, '/', {
+    message: `You are already logged in`,
+  });
+
+  const routes = (
+    <div>
+      <Router history={history}>
+        <Route path="/" component={App}>
+          <IndexRoute component={HomePage} onEnter={requireAuth} />
+          <Route path="login" component={LoginPage} onEnter={requireNoAuth} />
+          <Route path="register" component={RegisterPage} onEnter={requireNoAuth} />
+        </Route>
+      </Router>
+    </div>
+  );
+
+  if (canUseDOM) {
+    render(store, routes);
+  }
+
+  return { store, routes };
 }
 
 // Initialize store if it's running on browser
 if (canUseDOM) {
   const initialState = JSON.parse(document.getElementById('__INITIAL_STATE__').innerHTML);
-  initializeStore(initialState);
-}
+  initialize(initialState, (store, routes) => {
+    ReactDOM.render(
+      <Provider store={store}>
+        {routes}
+      </Provider>
+    , document.getElementById('mount'));
 
-// Bind Auth
-const requireAuth = bindCheckAuth(
-  store,
-  (nextState, replaceState, callback) => {
-    replaceState({
-      nextPathname: nextState.location.pathname,
-    }, '/login');
-    store.dispatch(setFlash({ message: 'Restricted area', type: 'error' }));
-    callback();
-  }
-);
-
-export const routes = (
-  <div>
-    <Router history={history}>
-      <Route path="/" component={App}>
-        <IndexRoute component={HomePage} onEnter={requireAuth} />
-        <Route path="login" component={LoginPage} />
-      </Route>
-    </Router>
-  </div>
-);
-
-if (canUseDOM) {
-  ReactDOM.render(
-    <Provider store={store}>
-      {routes}
-    </Provider>
-  , document.getElementById('mount'));
-
-  if (__DEVELOPMENT__) {
-    ReactDOM.render(<DevTools store={store} />, document.getElementById('debug'));
-  }
+    if (__DEVELOPMENT__) {
+      ReactDOM.render(<DevTools store={store} />, document.getElementById('debug'));
+    }
+  });
 }

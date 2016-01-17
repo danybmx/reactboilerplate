@@ -24,15 +24,26 @@ class LoginPage extends Component {
     password: '',
   };
 
+  loggedIn = () => {
+    const pathname = this.props.routing.state && this.props.routing.state.nextPathname
+    ? this.props.routing.state.nextPathname
+    : '/';
+    this.props.dispatch(routeActions.push({ pathname }));
+    this.props.dispatch(setFlash({ message: `Welcome ${this.props.auth.user.username}` }));
+  };
+
   handleSubmit = () => {
     this.props.dispatch(
-      loginWithPassword(this.state.username, this.state.password, () => {
+      loginWithPassword({
+        username: this.state.username,
+        password: this.state.password,
+      }, () => {
         if (this.props.auth.loggedIn) {
-          const pathname = this.props.routing.state && this.props.routing.state.nextPathname
-          ? this.props.routing.state.nextPathname
-          : '/';
-          this.props.dispatch(routeActions.push({ pathname }));
-          this.props.dispatch(setFlash({ message: `Welcome ${this.props.auth.user.username}` }));
+          this.loggedIn();
+        } else {
+          if (this.props.auth.message) {
+            this.props.dispatch(setFlash({ message: this.props.auth.message, type: 'error' }));
+          }
         }
       })
     );
@@ -58,7 +69,11 @@ class LoginPage extends Component {
           value={this.state.password}
           onChange={this.handleChange}
           placeholder="Password" /><br />
-        <button type="submit" onClick={this.handleSubmit}>Login</button>
+        <button type="submit" onClick={this.handleSubmit}>Login</button><br />
+        <a href="/api/auth/facebook">Facebook</a>
+        <a href="/api/auth/twitter">Twitter</a>
+        <Link to="/register">Register</Link>
+        <br />
         <Link to="/">Home!</Link>
       </div>
     );
