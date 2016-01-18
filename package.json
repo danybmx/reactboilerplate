@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "A simple react boileplate for use in my projects",
   "scripts": {
-    "start": "nodemon --exec babel-node ./tools/server.js --ignore client",
-    "build": "NODE_ENV=production babel-node ./tools/build.js",
-    "serve": "NODE_ENV=production babel-node ./tools/server.production.js",
+    "dev": "nodemon --exec babel-node ./tools/server.js --ignore client",
+    "dist": "NODE_ENV=production babel-node ./tools/build.js",
+    "start": "NODE_ENV=production babel-node ./tools/server.production.js",
     "test": "jest",
     "preinstall": "npm prune"
   },

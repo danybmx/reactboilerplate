@@ -6,6 +6,7 @@ import Radium, { Style } from 'radium';
 // Components
 import Header from './Elements/Header';
 import Flash from './Elements/Flash';
+import Page from './Elements/Page';
 
 // Styles
 import layoutStyle from '../styles/layout';
@@ -14,7 +15,7 @@ const styles = {
   base: {
     minHeight: '100%',
     width: '100%',
-    paddingTop: 70,
+    paddingTop: 60,
   },
 };
 
@@ -32,9 +33,9 @@ class App extends Component {
         <Style rules={layoutStyle} />
         <Header />
         <Flash />
-        <div className="app-content">
+        <Page style={styles.page}>
           {this.props.children}
-        </div>
+        </Page>
       </div>
     );
   }

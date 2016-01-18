@@ -15,7 +15,7 @@ class HomePage extends Component {
 
   render() {
     return (
-      <div>
+      <div style={v.container}>
         Hello, I'm the homePage<br />
         <Link to="/login">Login!</Link>
         {this.props.user.username}

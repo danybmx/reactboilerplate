@@ -12,4 +12,12 @@ export default {
     maxWidth: 1280,
     margin: '0 auto',
   },
+  button: {
+    border: 0,
+    background: '#afac82',
+    color: '#fff',
+    lineHeight: '14px',
+    height: 30,
+    padding: '8px 12px',
+  }
 };

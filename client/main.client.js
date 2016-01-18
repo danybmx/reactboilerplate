@@ -44,7 +44,8 @@ if (__DEVELOPMENT__) { // eslint-disable-line
   DevTools = createDevTools(
     <DockMonitor
       toggleVisibilityKey="ctrl-h"
-      changePositionKey="ctrl-q">
+      changePositionKey="ctrl-q"
+      defaultIsVisible={false}>
       <LogMonitor theme="tomorrow" />
     </DockMonitor>
   );
@@ -80,7 +81,7 @@ export function initialize(initialState, render) {
   const authFailCallback = (nextState, replaceState, callback, redirect, flash) => {
     replaceState({
       nextPathname: nextState.location.pathname,
-    }, '/');
+    }, redirect);
     if (flash) {
       store.dispatch(setFlash({ message: flash.message, type: flash.type || 'error' }));
     }

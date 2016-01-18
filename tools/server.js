@@ -183,7 +183,7 @@ configureDatabase((mongoose) => {
 
   const server = app.listen(config.port, '0.0.0.0', () => {
     /* eslint no-console:0 */
-    console.log('-> 🌎  Listening on %s!', config.port);
+    console.log('-> Listening on %s!', config.port);
   });
 
   const ioServer = io(server);

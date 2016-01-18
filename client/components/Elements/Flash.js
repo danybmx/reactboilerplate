@@ -4,6 +4,8 @@ import { connect } from 'react-redux';
 import Radium from 'radium';
 import { clearFlash } from '../../actions';
 
+import Button from './Button';
+
 const styles = {
   base: {
     padding: 10,
@@ -47,7 +49,7 @@ class Flash extends Component {
     return (
       <div style={flashStyle}>
         {this.props.flash.message}
-        <button onClick={this.handleClick}>Close</button>
+        <Button onClick={this.handleClick} icon="times"></Button>
       </div>
     );
   }
